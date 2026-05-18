@@ -1,0 +1,192 @@
+{
+  "id": null,
+  "uid": "red-beforum",
+  "title": "RED Metrics (be-forum)",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "timezone": "browser",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "application",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+        "query": "label_values(service_name)",
+        "definition": "label_values(service_name)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false
+      },
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+        "query": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\"}, instance)",
+        "definition": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\"}, instance)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "uri",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+        "query": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\"}, uri)",
+        "definition": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\"}, uri)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "method",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+        "query": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\"}, method)",
+        "definition": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\"}, method)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "R: Request Rate (req/s)",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m]))" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "E: Error Rate (5xx req/s)",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\",status=~\"5..\"}[5m])) or vector(0)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "E: Error Percentage",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * ((sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\",status=~\"5..\"}[5m])) or vector(0)) / sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m])))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "D: Avg Duration (s)",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_requests_milliseconds_sum{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m])) / sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m])) / 1000"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "D: P95 Duration (s)",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_milliseconds_bucket{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m]))) / 1000"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "D: Max Duration (s)",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_server_requests_milliseconds_bucket{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m]))) / 1000"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Request Rate by Status",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (status) (rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m]))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Latency (Avg/P95)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_requests_milliseconds_sum{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m])) / sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m])) / 1000",
+          "legendFormat": "avg"
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_milliseconds_bucket{service_name=\"$application\",instance=~\"$instance\",uri=~\"$uri\",method=~\"$method\"}[5m]))) / 1000",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Top URIs by Traffic (req/s)",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(15, sum by (uri, method) (rate(http_server_requests_milliseconds_count{service_name=\"$application\",instance=~\"$instance\"}[5m])))",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": {
+        "showHeader": true,
+        "footer": { "show": false, "reducer": ["sum"], "countRows": false, "fields": "" }
+      }
+    }
+  ]
+}

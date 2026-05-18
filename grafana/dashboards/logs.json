@@ -1,0 +1,279 @@
+{
+  "id": null,
+  "uid": "logs",
+  "title": "logs",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "timezone": "browser",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_LOKI",
+        "type": "datasource",
+        "query": "loki",
+        "current": {}
+      },
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "query": "label_values(service_name)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "be-forum",
+          "value": "be-forum"
+        }
+      },
+      {
+        "name": "level",
+        "type": "custom",
+        "query": "TRACE,DEBUG,INFO,WARN,ERROR",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "multi": false,
+        "includeAll": true,
+        "allValue": "TRACE|DEBUG|INFO|WARN|ERROR"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Log Rate (lines/s)",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" [1m]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Error Rate (lines/min)",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" ERROR --- \" [1m])) * 60"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Warn Rate (lines/min)",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" WARN --- \" [1m])) * 60"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Log Rate by Level",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" INFO --- \" [1m]))",
+          "legendFormat": "INFO"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" WARN --- \" [1m]))",
+          "legendFormat": "WARN"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" ERROR --- \" [1m]))",
+          "legendFormat": "ERROR"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" DEBUG --- \" [1m]))",
+          "legendFormat": "DEBUG"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Top Error Messages (5m)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(20, sum by (line) (count_over_time({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" ERROR --- \" [5m])))",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true
+      }
+    },
+    {
+      "id": 6,
+      "type": "logs",
+      "title": "Live Logs",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\""
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "dedupStrategy": "none"
+      }
+    },
+    {
+      "id": 7,
+      "type": "logs",
+      "title": "Filtered by Level",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "Time",
+                "line"
+              ]
+            }
+          }
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "dedupStrategy": "none"
+      }
+    }
+  ]
+}

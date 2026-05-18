@@ -1,0 +1,29 @@
+logging {
+  level = "info"
+}
+
+otelcol.receiver.otlp "logs" {
+  grpc {
+    endpoint = "0.0.0.0:4319"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4320"
+  }
+
+  output {
+    logs = [otelcol.processor.batch.logs.input]
+  }
+}
+
+otelcol.processor.batch "logs" {
+  output {
+    logs = [otelcol.exporter.otlphttp.loki.input]
+  }
+}
+
+otelcol.exporter.otlphttp "loki" {
+  client {
+    endpoint = "http://loki:3100/otlp"
+  }
+}
