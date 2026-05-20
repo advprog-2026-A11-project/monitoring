@@ -7,7 +7,6 @@ services:
     user: "0:0"
     volumes:
       - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     ports:
       - "4317:4317"   # OTLP gRPC ingest from services
       - "4318:4318"   # OTLP HTTP ingest from services

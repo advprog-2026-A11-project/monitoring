@@ -5,27 +5,6 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-  filelog/docker:
-    include:
-      - /var/lib/docker/containers/*/*-json.log
-    start_at: end
-    include_file_path: true
-    operators:
-      - type: json_parser
-        id: parser-docker
-        parse_from: body
-      - type: move
-        from: attributes.log
-        to: body
-      - type: filter
-        id: keep-beforum-lines
-        expr: 'not (body matches "trace_id=")'
-      - type: move
-        from: attributes.stream
-        to: attributes.log.stream
-      - type: add
-        field: resource["service.name"]
-        value: be-forum
 
 processors:
   memory_limiter:
@@ -37,9 +16,6 @@ processors:
     send_batch_size: 1024
   resource:
     attributes:
-      - key: service.name
-        action: upsert
-        value: be-forum
       - key: deployment.environment
         action: upsert
         value: local
@@ -74,6 +50,6 @@ service:
       processors: [memory_limiter, resource, batch]
       exporters: [prometheus]
     logs:
-      receivers: [otlp, filelog/docker]
+      receivers: [otlp]
       processors: [memory_limiter, resource, batch]
       exporters: [otlphttp/loki]

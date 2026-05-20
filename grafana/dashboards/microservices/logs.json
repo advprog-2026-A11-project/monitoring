@@ -66,7 +66,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" [1m]))"
+          "expr": "sum(rate({service_name=\"$service\"}[1m]))"
         }
       ],
       "fieldConfig": {
@@ -93,7 +93,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" ERROR --- \" [1m])) * 60"
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"(?i)error\" [1m])) * 60"
         }
       ],
       "fieldConfig": {
@@ -120,7 +120,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" WARN --- \" [1m])) * 60"
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"(?i)warn\" [1m])) * 60"
         }
       ],
       "fieldConfig": {
@@ -147,22 +147,22 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" INFO --- \" [1m]))",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"(?i)info\" [1m]))",
           "legendFormat": "INFO"
         },
         {
           "refId": "B",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" WARN --- \" [1m]))",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"(?i)warn\" [1m]))",
           "legendFormat": "WARN"
         },
         {
           "refId": "C",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" ERROR --- \" [1m]))",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"(?i)error\" [1m]))",
           "legendFormat": "ERROR"
         },
         {
           "refId": "D",
-          "expr": "sum(rate({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" DEBUG --- \" [1m]))",
+          "expr": "sum(rate({service_name=\"$service\"} |~ \"(?i)debug\" [1m]))",
           "legendFormat": "DEBUG"
         }
       ],
@@ -190,7 +190,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "topk(20, sum by (line) (count_over_time({service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\" |~ \" ERROR --- \" [5m])))",
+          "expr": "topk(20, sum by (line) (count_over_time({service_name=\"$service\"} |~ \"(?i)error\" [5m])))",
           "queryType": "instant"
         }
       ],
@@ -219,7 +219,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\""
+          "expr": "{service_name=\"$service\"}"
         }
       ],
       "options": {
@@ -249,7 +249,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"$service\"} |~ \"trace_id=.* span_id=.* trace_flags=.* (${level:regex}) --- \\\\[\""
+          "expr": "{service_name=\"$service\"} |~ \"(?i)(${level:regex})\""
         }
       ],
       "transformations": [
