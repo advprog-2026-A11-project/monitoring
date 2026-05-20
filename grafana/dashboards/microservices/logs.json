@@ -219,7 +219,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"$service\"}"
+          "expr": "{service_name=\"$service\", deployment_environment=\"prod\"} != \"fileconsumer/file.go\""
         }
       ],
       "options": {
@@ -249,20 +249,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"$service\"} |~ \"(?i)(${level:regex})\""
-        }
-      ],
-      "transformations": [
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "Time",
-                "line"
-              ]
-            }
-          }
+          "expr": "{service_name=\"$service\", deployment_environment=\"prod\"} |~ \"(?i)(${level:regex})\""
         }
       ],
       "options": {

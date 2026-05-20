@@ -11,14 +11,14 @@ processors:
     check_interval: 1s
     limit_mib: 512
     spike_limit_mib: 128
-  batch:
-    timeout: 1s
-    send_batch_size: 1024
   resource:
     attributes:
       - key: deployment.environment
         action: upsert
-        value: local
+        value: prod
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
 
 exporters:
   debug:
