@@ -8,4 +8,13 @@ providers:
     disableDeletion: false
     editable: true
     options:
-      path: /var/lib/grafana/dashboards
+      path: /var/lib/grafana/dashboards/microservices
+
+  - name: Forum Monitoring Dashboards
+    orgId: 1
+    folder: Forum Monitoring
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/forum-monitoring

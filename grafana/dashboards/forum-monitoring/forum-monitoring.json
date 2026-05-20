@@ -1,0 +1,228 @@
+{
+  "id": null,
+  "uid": "forum-monitoring",
+  "title": "Forum Monitoring",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "timezone": "browser",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {}
+      },
+      {
+        "name": "DS_LOKI",
+        "type": "datasource",
+        "query": "loki",
+        "current": {}
+      },
+      {
+        "name": "application",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(http_server_requests_milliseconds_count, service_name)",
+        "definition": "label_values(http_server_requests_milliseconds_count, service_name)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "be-forum",
+          "value": "be-forum"
+        }
+      },
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\"}, instance)",
+        "definition": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\"}, instance)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Messages Created (1m rate)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(forum_messages_created_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Messages Updated (1m rate)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(forum_messages_updated_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Messages Deleted (1m rate)",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(forum_messages_deleted_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Messages Fetch (1m rate)",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(forum_messages_fetched_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Message Operations by Type",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(forum_messages_created_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "legendFormat": "create"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(forum_messages_updated_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "legendFormat": "update"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate(forum_messages_deleted_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "legendFormat": "delete"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(rate(forum_messages_fetched_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "legendFormat": "fetch"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Redis Cache Hits vs Misses",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(cache_gets_total{service_name=\"$application\",instance=~\"$instance\",result=\"hit\"}[5m]))",
+          "legendFormat": "hit"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(cache_gets_total{service_name=\"$application\",instance=~\"$instance\",result=\"miss\"}[5m]))",
+          "legendFormat": "miss"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Database Operations (Repository Invocations)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (method) (rate(spring_data_repository_invocations_seconds_count{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "legendFormat": "{{method}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "DB Connection Pool Activity",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg(hikaricp_connections_active{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "active"
+        },
+        {
+          "refId": "B",
+          "expr": "avg(hikaricp_connections_idle{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "idle"
+        },
+        {
+          "refId": "C",
+          "expr": "avg(hikaricp_connections_pending{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "pending"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 9,
+      "type": "logs",
+      "title": "Database Query / SQL Logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 20 },
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$application\"} |= \"select \" or {service_name=\"$application\"} |= \"insert \" or {service_name=\"$application\"} |= \"update \" or {service_name=\"$application\"} |= \"delete \" or {service_name=\"$application\"} |= \"org.hibernate.SQL\""
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true,
+        "dedupStrategy": "none"
+      }
+    }
+  ]
+}
