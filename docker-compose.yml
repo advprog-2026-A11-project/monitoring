@@ -7,7 +7,6 @@ services:
     user: "0:0"
     volumes:
       - ./otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     ports:
       - "4317:4317"   # OTLP gRPC ingest from services
       - "4318:4318"   # OTLP HTTP ingest from services
@@ -63,19 +62,6 @@ services:
     volumes:
       - ./tempo/config.yaml:/etc/tempo/config.yaml:ro
       - tempo-data:/var/tempo
-    networks:
-      - observability
-
-  alloy:
-    image: grafana/alloy:latest
-    command: ["run", "/etc/alloy/config.alloy"]
-    volumes:
-      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
-    ports:
-      - "4319:4319"   # OTLP gRPC logs ingest from services
-      - "4320:4320"   # OTLP HTTP logs ingest from services
-    depends_on:
-      - loki
     networks:
       - observability
 

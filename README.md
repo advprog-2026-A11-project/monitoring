@@ -16,7 +16,6 @@ This monitoring setup uses:
 Core config files:
 - `docker-compose.yml`
 - `otel-collector/config.yaml`
-- `alloy/config.alloy`
 - `tempo/config.yaml`
 - `loki/config.yaml`
 - `prometheus/prometheus.yml`
@@ -27,7 +26,7 @@ Core config files:
 Telemetry flow:
 1. **Traces + metrics** are sent from backend services to **OTel Collector** (`4317/4318`).
 2. OTel Collector forwards traces to **Tempo** and metrics to **Prometheus scrape endpoint**.
-3. **Logs** are sent from backend services to **Alloy** (`4319/4320`) and then forwarded to **Loki**.
+3. **Logs** are sent from backend services (or service-side shippers) to **Loki**.
 4. **Grafana** reads from Tempo/Loki/Prometheus using provisioned datasources.
 
 ## 3. Ports and Endpoints
@@ -36,8 +35,6 @@ Exposed by monitoring stack:
 - Grafana UI: `3000`
 - OTel Collector OTLP gRPC: `4317`
 - OTel Collector OTLP HTTP: `4318`
-- Alloy OTLP gRPC (logs): `4319`
-- Alloy OTLP HTTP (logs): `4320`
 
 Internal-only in compose network:
 - Tempo API: `3200`
@@ -70,7 +67,7 @@ Every backend service must do all of the following:
 1. Instrument app with OpenTelemetry SDK/agent.
 2. Set stable service identity (`service.name`).
 3. Export traces and metrics to OTel Collector (`4317` or `4318`).
-4. Export logs through OTLP to Alloy (`4319` or `4320`).
+4. Export logs to Loki (directly or via service-side shipper).
 5. Include trace context in logs when possible (`trace_id`, `span_id`).
 
 If any one of these is missing, correlation in Grafana will be partial.
@@ -93,11 +90,11 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://<monitoring-host>:4318
 OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 
 # Logs -> Alloy (recommended explicit logs endpoint)
-OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://<monitoring-host>:4320/v1/logs
+LOKI_PUSH_URL=http://<monitoring-host>:3100/loki/api/v1/push
 ```
 
 Notes:
-- If using gRPC exporter, target `4317` for collector and `4319` for logs gateway.
+- If using OTLP exporter, target `4317` (gRPC) or `4318` (HTTP) on collector.
 - `service.name` must be non-empty and consistent across app instances.
 - Prefer explicit `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` so logs do not accidentally go to the traces/metrics path.
 
@@ -114,7 +111,6 @@ Use one of these approaches:
 
 Minimum required reachability:
 - `4317/4318` for traces/metrics
-- `4319/4320` for logs
 
 ## 8. Verify Integration End-to-End
 
@@ -185,7 +181,7 @@ For each new backend service, complete this checklist:
 - [ ] `service.name` set and stable
 - [ ] Traces exported to collector
 - [ ] Metrics exported to collector
-- [ ] Logs exported to alloy
+- [ ] Logs exported to Loki
 - [ ] Trace context appears in logs
 - [ ] Service appears in Tempo search
 - [ ] Service appears in Loki logs
@@ -206,5 +202,5 @@ If you modify monitoring config, always restart stack and re-verify with fresh t
 
 ```bash
 docker compose up -d
-docker compose restart tempo otel-collector grafana alloy
+docker compose restart tempo otel-collector grafana
 ```
