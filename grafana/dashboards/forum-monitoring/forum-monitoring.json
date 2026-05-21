@@ -31,8 +31,8 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "query": "label_values(http_server_requests_milliseconds_count, service_name)",
-        "definition": "label_values(http_server_requests_milliseconds_count, service_name)",
+        "query": "label_values(forum_messages_fetched_total, service_name)",
+        "definition": "label_values(forum_messages_fetched_total, service_name)",
         "refresh": 1,
         "multi": false,
         "includeAll": false,
@@ -48,8 +48,8 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "query": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\"}, instance)",
-        "definition": "label_values(http_server_requests_milliseconds_count{service_name=\"$application\"}, instance)",
+        "query": "label_values(forum_messages_fetched_total{service_name=\"$application\"}, instance)",
+        "definition": "label_values(forum_messages_fetched_total{service_name=\"$application\"}, instance)",
         "refresh": 1,
         "multi": true,
         "includeAll": true,
@@ -61,58 +61,58 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "Messages Created (1m rate)",
+      "title": "Messages Created (count)",
       "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(forum_messages_created_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(increase(forum_messages_created_total{service_name=\"$application\"}[$__range]))"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 2,
       "type": "stat",
-      "title": "Messages Updated (1m rate)",
+      "title": "Messages Updated (count)",
       "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(forum_messages_updated_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(increase(forum_messages_updated_total{service_name=\"$application\"}[$__range]))"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 3,
       "type": "stat",
-      "title": "Messages Deleted (1m rate)",
+      "title": "Messages Deleted (count)",
       "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(forum_messages_deleted_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(increase(forum_messages_deleted_total{service_name=\"$application\"}[$__range]))"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 4,
       "type": "stat",
-      "title": "Messages Fetch (1m rate)",
+      "title": "Messages Fetch (count)",
       "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(forum_messages_fetched_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(increase(forum_messages_fetched_total{service_name=\"$application\"}[$__range]))"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 5,
@@ -123,26 +123,26 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(forum_messages_created_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(increase(forum_messages_created_total{service_name=\"$application\"}[$__range]))",
           "legendFormat": "create"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(forum_messages_updated_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(increase(forum_messages_updated_total{service_name=\"$application\"}[$__range]))",
           "legendFormat": "update"
         },
         {
           "refId": "C",
-          "expr": "sum(rate(forum_messages_deleted_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(increase(forum_messages_deleted_total{service_name=\"$application\"}[$__range]))",
           "legendFormat": "delete"
         },
         {
           "refId": "D",
-          "expr": "sum(rate(forum_messages_fetched_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(increase(forum_messages_fetched_total{service_name=\"$application\"}[$__range]))",
           "legendFormat": "fetch"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 6,
@@ -153,16 +153,16 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(cache_gets_total{service_name=\"$application\",instance=~\"$instance\",result=\"hit\"}[5m]))",
+          "expr": "sum(increase(forum_cache_access_total{service_name=\"$application\",result=\"hit\"}[$__range])) or vector(0)",
           "legendFormat": "hit"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(cache_gets_total{service_name=\"$application\",instance=~\"$instance\",result=\"miss\"}[5m]))",
+          "expr": "sum(increase(forum_cache_access_total{service_name=\"$application\",result=\"miss\"}[$__range])) or vector(0)",
           "legendFormat": "miss"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 7,
@@ -173,11 +173,11 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (method) (rate(spring_data_repository_invocations_seconds_count{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
-          "legendFormat": "{{method}}"
+          "expr": "sum by (operation, repository_method) (rate(forum_db_operations_total{service_name=\"$application\"}[5m]))",
+          "legendFormat": "{{operation}} - {{repository_method}}"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
     },
     {
       "id": 8,
@@ -188,41 +188,21 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "avg(hikaricp_connections_active{service_name=\"$application\",instance=~\"$instance\"})",
+          "expr": "avg(hikaricp_connections_active{service_name=\"$application\"})",
           "legendFormat": "active"
         },
         {
           "refId": "B",
-          "expr": "avg(hikaricp_connections_idle{service_name=\"$application\",instance=~\"$instance\"})",
+          "expr": "avg(hikaricp_connections_idle{service_name=\"$application\"})",
           "legendFormat": "idle"
         },
         {
           "refId": "C",
-          "expr": "avg(hikaricp_connections_pending{service_name=\"$application\",instance=~\"$instance\"})",
+          "expr": "avg(hikaricp_connections_pending{service_name=\"$application\"})",
           "legendFormat": "pending"
         }
       ],
       "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
-    },
-    {
-      "id": 9,
-      "type": "logs",
-      "title": "Database Query / SQL Logs",
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 20 },
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "{service_name=\"$application\"} |= \"select \" or {service_name=\"$application\"} |= \"insert \" or {service_name=\"$application\"} |= \"update \" or {service_name=\"$application\"} |= \"delete \" or {service_name=\"$application\"} |= \"org.hibernate.SQL\""
-        }
-      ],
-      "options": {
-        "showLabels": true,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": true,
-        "dedupStrategy": "none"
-      }
     }
   ]
 }

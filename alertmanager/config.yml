@@ -1,0 +1,15 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: ["alertname", "service", "severity"]
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 30m
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: "https://webhook.site/c6f7aa48-5ab3-4e16-9fd9-c2fb54d47eb6"
+        send_resolved: true

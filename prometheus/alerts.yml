@@ -1,0 +1,52 @@
+groups:
+  - name: be-forum-alerts
+    rules:
+      - alert: BeForumHighJvmMemoryUsage
+        expr: |
+          (
+            sum(jvm_memory_used_bytes{service_name="be-forum", area="heap"})
+            /
+            sum(jvm_memory_max_bytes{service_name="be-forum", area="heap"})
+          ) * 100 > 60
+        for: 5m
+        labels:
+          severity: warning
+          service: be-forum
+        annotations:
+          summary: "be-forum JVM heap usage is above 60%"
+          description: "Current JVM heap usage for be-forum is above 60% for at least 5 minutes."
+
+      - alert: BeForumMessage5xxErrorsHigh
+        expr: |
+          sum(
+            increase(
+              http_server_requests_seconds_count{
+                service_name="be-forum",
+                status=~"5..",
+                uri=~"/api/messages.*"
+              }[5m]
+            )
+          ) > 20
+        for: 2m
+        labels:
+          severity: critical
+          service: be-forum
+        annotations:
+          summary: "be-forum message API 5xx errors exceeded threshold"
+          description: "Message-related 5xx responses exceeded 20 within the last 5 minutes."
+
+      - alert: BeForumHighRequestLatencyP95
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (
+              rate(http_server_requests_seconds_bucket{service_name="be-forum"}[5m])
+            )
+          ) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: be-forum
+        annotations:
+          summary: "be-forum p95 request latency is above 5 seconds"
+          description: "Server-side p95 latency exceeded 5s for at least 5 minutes."
