@@ -1,0 +1,321 @@
+{
+  "id": null,
+  "uid": "auth-monitoring",
+  "title": "Auth Monitoring",
+  "schemaVersion": 39,
+  "version": 4,
+  "refresh": "10s",
+  "timezone": "browser",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {}
+      },
+      {
+        "name": "DS_LOKI",
+        "type": "datasource",
+        "query": "loki",
+        "current": {}
+      },
+      {
+        "name": "application",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(auth_db_health_status, service_name)",
+        "definition": "label_values(auth_db_health_status, service_name)",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {
+          "text": "be-auth",
+          "value": "be-auth"
+        }
+      },
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "query": "label_values(auth_db_health_status{service_name=\"$application\"}, instance)",
+        "definition": "label_values(auth_db_health_status{service_name=\"$application\"}, instance)",
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Login Attempts",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_login_attempt_total{service_name=\"$application\",instance=~\"$instance\"})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Register Attempts",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_register_attempt_total{service_name=\"$application\",instance=~\"$instance\"})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Refresh Attempts",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_refresh_attempt_total{service_name=\"$application\",instance=~\"$instance\"})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Unauthorized Requests",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_unauthorized_request_total{service_name=\"$application\",instance=~\"$instance\"})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Login Success vs Failure",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_login_success_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "success"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(auth_login_failed_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "failed"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Register Success vs Failure",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_register_success_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "success"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(auth_register_failed_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "failed"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Auth Account Operations",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_logout_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "logout"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(auth_change_password_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "change_password"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(auth_add_email_login_method_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "add_email"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(auth_add_phone_login_method_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "add_phone"
+        },
+        {
+          "refId": "E",
+          "expr": "sum(auth_delete_account_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "delete_account"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Security Events",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(auth_revoked_token_hit_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "revoked_token"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (claim) (auth_jwt_custom_claim_missing_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "missing {{claim}}"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(auth_forbidden_request_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "forbidden"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 9,
+      "type": "stat",
+      "title": "Database Health",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg(auth_db_health_status{service_name=\"$application\",instance=~\"$instance\"})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none", "min": 0, "max": 1 }, "overrides": [] }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Supabase Health",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg(auth_supabase_health_status{service_name=\"$application\",instance=~\"$instance\"})"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none", "min": 0, "max": 1 }, "overrides": [] }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "DB Connection Pool",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "avg(hikaricp_connections_active{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "active"
+        },
+        {
+          "refId": "B",
+          "expr": "avg(hikaricp_connections_idle{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "idle"
+        },
+        {
+          "refId": "C",
+          "expr": "avg(hikaricp_connections_pending{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "pending"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Supabase Requests",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (operation,status) (auth_supabase_request_total{service_name=\"$application\",instance=~\"$instance\"})",
+          "legendFormat": "{{operation}} {{status}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Supabase Avg Latency",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (operation) (auth_supabase_request_duration_seconds_milliseconds_sum{service_name=\"$application\",instance=~\"$instance\"}) / sum by (operation) (auth_supabase_request_duration_seconds_milliseconds_count{service_name=\"$application\",instance=~\"$instance\"}) / 1000",
+          "legendFormat": "{{operation}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 14,
+      "type": "logs",
+      "title": "Auth Logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 36 },
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$application\"} |= \"auth\" or {service_name=\"$application\"} |= \"Unauthorized\" or {service_name=\"$application\"} |= \"Exception\""
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true,
+        "dedupStrategy": "none"
+      }
+    }
+  ]
+}

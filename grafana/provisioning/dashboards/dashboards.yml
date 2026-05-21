@@ -18,3 +18,12 @@ providers:
     editable: true
     options:
       path: /var/lib/grafana/dashboards/forum-monitoring
+
+  - name: Auth Monitoring Dashboards
+    orgId: 1
+    folder: Auth Monitoring
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/auth-monitoring
