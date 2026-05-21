@@ -3,7 +3,7 @@
   "uid": "auth-monitoring",
   "title": "Auth Monitoring",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 3,
   "refresh": "10s",
   "timezone": "browser",
   "time": {
@@ -67,10 +67,10 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_login_attempt_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(auth_login_attempt_total{service_name=\"$application\",instance=~\"$instance\"})"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 2,
@@ -81,10 +81,10 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_register_attempt_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(auth_register_attempt_total{service_name=\"$application\",instance=~\"$instance\"})"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 3,
@@ -95,10 +95,10 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_refresh_attempt_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(auth_refresh_attempt_total{service_name=\"$application\",instance=~\"$instance\"})"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 4,
@@ -109,10 +109,10 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_unauthorized_request_total{service_name=\"$application\",instance=~\"$instance\"}[1m]))"
+          "expr": "sum(auth_unauthorized_request_total{service_name=\"$application\",instance=~\"$instance\"})"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 5,
@@ -123,16 +123,16 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_login_success_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_login_success_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "success"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(auth_login_failed_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_login_failed_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "failed"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 6,
@@ -143,16 +143,16 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_register_success_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_register_success_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "success"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(auth_register_failed_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_register_failed_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "failed"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 7,
@@ -163,31 +163,31 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_logout_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_logout_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "logout"
         },
         {
           "refId": "B",
-          "expr": "sum(rate(auth_change_password_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_change_password_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "change_password"
         },
         {
           "refId": "C",
-          "expr": "sum(rate(auth_add_email_login_method_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_add_email_login_method_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "add_email"
         },
         {
           "refId": "D",
-          "expr": "sum(rate(auth_add_phone_login_method_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_add_phone_login_method_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "add_phone"
         },
         {
           "refId": "E",
-          "expr": "sum(rate(auth_delete_account_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_delete_account_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "delete_account"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 8,
@@ -198,21 +198,21 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(auth_revoked_token_hit_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_revoked_token_hit_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "revoked_token"
         },
         {
           "refId": "B",
-          "expr": "sum by (claim) (rate(auth_jwt_custom_claim_missing_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum by (claim) (auth_jwt_custom_claim_missing_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "missing {{claim}}"
         },
         {
           "refId": "C",
-          "expr": "sum(rate(auth_forbidden_request_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum(auth_forbidden_request_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "forbidden"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 9,
@@ -276,11 +276,11 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (operation,status) (rate(auth_supabase_request_total{service_name=\"$application\",instance=~\"$instance\"}[5m]))",
+          "expr": "sum by (operation,status) (auth_supabase_request_total{service_name=\"$application\",instance=~\"$instance\"})",
           "legendFormat": "{{operation}} {{status}}"
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] }
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
     },
     {
       "id": 13,
