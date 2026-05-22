@@ -27,3 +27,12 @@ providers:
     editable: true
     options:
       path: /var/lib/grafana/dashboards/auth-monitoring
+
+  - name: Achievement Monitoring Dashboards
+    orgId: 1
+    folder: Achievement Monitoring
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards/achievement-monitoring

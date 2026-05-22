@@ -16,6 +16,26 @@ processors:
       - key: deployment.environment
         action: upsert
         value: prod
+  transform/achievement:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(attributes["service.namespace"], "yomu") where attributes["service.name"] == "be-achievement"
+          - set(attributes["deployment.environment"], "prod") where attributes["service.name"] == "be-achievement"
+          - set(attributes["service.name"], "be-achievement") where attributes["service.name"] == "Yomu"
+    trace_statements:
+      - context: resource
+        statements:
+          - set(attributes["service.namespace"], "yomu") where attributes["service.name"] == "be-achievement"
+          - set(attributes["deployment.environment"], "prod") where attributes["service.name"] == "be-achievement"
+          - set(attributes["service.name"], "be-achievement") where attributes["service.name"] == "Yomu"
+    log_statements:
+      - context: resource
+        statements:
+          - set(attributes["service.namespace"], "yomu") where attributes["service.name"] == "be-achievement"
+          - set(attributes["deployment.environment"], "prod") where attributes["service.name"] == "be-achievement"
+          - set(attributes["service.name"], "be-achievement") where attributes["service.name"] == "Yomu"
   batch:
     timeout: 1s
     send_batch_size: 1024
@@ -43,13 +63,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
+      processors: [memory_limiter, resource, transform/achievement, batch]
       exporters: [otlp/tempo]
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
+      processors: [memory_limiter, resource, transform/achievement, batch]
       exporters: [prometheus]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, resource, batch]
+      processors: [memory_limiter, resource, transform/achievement, batch]
       exporters: [otlphttp/loki]

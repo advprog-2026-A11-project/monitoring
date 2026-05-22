@@ -1,0 +1,78 @@
+{
+  "id": null,
+  "uid": "achievement-monitoring",
+  "title": "Achievement Monitoring",
+  "tags": ["yomu", "achievement", "otel"],
+  "schemaVersion": 39,
+  "version": 2,
+  "refresh": "10s",
+  "timezone": "browser",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {}
+      },
+      {
+        "name": "application",
+        "type": "constant",
+        "query": "be-achievement",
+        "current": {
+          "text": "be-achievement",
+          "value": "be-achievement"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total HTTP Requests",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(http_server_requests_milliseconds_count{service_name=\"$application\"}[$__range]))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Quiz Completed Events",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(http_server_requests_milliseconds_count{service_name=\"$application\", uri=\"/api/events/quiz-completed\"}[$__range]))"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Average HTTP Latency",
+      "gridPos": { "h": 10, "w": 16, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_requests_milliseconds_sum{service_name=\"$application\"}[1m])) by (uri) / sum(rate(http_server_requests_milliseconds_count{service_name=\"$application\"}[1m])) by (uri)",
+          "legendFormat": "{{uri}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] }
+    }
+  ]
+}
