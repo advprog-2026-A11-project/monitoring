@@ -7,7 +7,7 @@ This guide explains the observability stack in `monitoring/` and how each backen
 This monitoring setup uses:
 - Grafana `12.0.0` (UI, dashboards, Drilldown)
 - Tempo `2.8.2` (distributed tracing)
-- Loki `3.5.0` (centralized logs)
+- Loki `3.5.1` (centralized logs)
 - Prometheus `3.3.0` (metrics store)
 - OpenTelemetry Collector Contrib (OTLP ingest + processing)
 - Grafana Alloy (OTLP logs gateway to Loki)

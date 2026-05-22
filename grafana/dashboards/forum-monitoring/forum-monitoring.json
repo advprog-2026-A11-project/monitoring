@@ -67,7 +67,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(forum_messages_created_total{service_name=\"$application\"}[$__range]))"
+          "expr": "round(sum(increase(forum_messages_created_total{service_name=\"$application\"}[$__range])))"
         }
       ],
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
@@ -81,7 +81,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(forum_messages_updated_total{service_name=\"$application\"}[$__range]))"
+          "expr": "round(sum(increase(forum_messages_updated_total{service_name=\"$application\"}[$__range])))"
         }
       ],
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
@@ -95,7 +95,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(forum_messages_deleted_total{service_name=\"$application\"}[$__range]))"
+          "expr": "round(sum(increase(forum_messages_deleted_total{service_name=\"$application\"}[$__range])))"
         }
       ],
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
@@ -109,7 +109,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(forum_messages_fetched_total{service_name=\"$application\"}[$__range]))"
+          "expr": "round(sum(increase(forum_messages_fetched_total{service_name=\"$application\"}[$__range])))"
         }
       ],
       "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
@@ -123,22 +123,22 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(forum_messages_created_total{service_name=\"$application\"}[$__range]))",
+          "expr": "round(sum(increase(forum_messages_created_total{service_name=\"$application\"}[$__range])))",
           "legendFormat": "create"
         },
         {
           "refId": "B",
-          "expr": "sum(increase(forum_messages_updated_total{service_name=\"$application\"}[$__range]))",
+          "expr": "round(sum(increase(forum_messages_updated_total{service_name=\"$application\"}[$__range])))",
           "legendFormat": "update"
         },
         {
           "refId": "C",
-          "expr": "sum(increase(forum_messages_deleted_total{service_name=\"$application\"}[$__range]))",
+          "expr": "round(sum(increase(forum_messages_deleted_total{service_name=\"$application\"}[$__range])))",
           "legendFormat": "delete"
         },
         {
           "refId": "D",
-          "expr": "sum(increase(forum_messages_fetched_total{service_name=\"$application\"}[$__range]))",
+          "expr": "round(sum(increase(forum_messages_fetched_total{service_name=\"$application\"}[$__range])))",
           "legendFormat": "fetch"
         }
       ],
@@ -153,12 +153,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(forum_cache_access_total{service_name=\"$application\",result=\"hit\"}[$__range])) or vector(0)",
+          "expr": "round(sum(increase(forum_cache_access_total{service_name=\"$application\",result=\"hit\"}[$__range]))) or vector(0)",
           "legendFormat": "hit"
         },
         {
           "refId": "B",
-          "expr": "sum(increase(forum_cache_access_total{service_name=\"$application\",result=\"miss\"}[$__range])) or vector(0)",
+          "expr": "round(sum(increase(forum_cache_access_total{service_name=\"$application\",result=\"miss\"}[$__range]))) or vector(0)",
           "legendFormat": "miss"
         }
       ],
