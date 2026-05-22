@@ -291,7 +291,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (operation) (auth_supabase_request_duration_seconds_milliseconds_sum{service_name=\"$application\",instance=~\"$instance\"}) / sum by (operation) (auth_supabase_request_duration_seconds_milliseconds_count{service_name=\"$application\",instance=~\"$instance\"}) / 1000",
+          "expr": "(sum by (operation) (rate(auth_supabase_request_duration_seconds_sum{service_name=\"$application\",instance=~\"$instance\"}[5m])) / sum by (operation) (rate(auth_supabase_request_duration_seconds_count{service_name=\"$application\",instance=~\"$instance\"}[5m]))) or (sum by (operation) (rate(auth_supabase_request_duration_seconds_seconds_sum{service_name=\"$application\",instance=~\"$instance\"}[5m])) / sum by (operation) (rate(auth_supabase_request_duration_seconds_seconds_count{service_name=\"$application\",instance=~\"$instance\"}[5m])))",
           "legendFormat": "{{operation}}"
         }
       ],
@@ -306,7 +306,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"$application\"} |= \"auth\" or {service_name=\"$application\"} |= \"Unauthorized\" or {service_name=\"$application\"} |= \"Exception\""
+          "expr": "{service_name=~\"$application|auth|be-auth\"} |~ \"(?i)auth|unauthorized|exception|login|register|refresh\""
         }
       ],
       "options": {
